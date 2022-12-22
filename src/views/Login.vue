@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <h1>Login</h1>
+  <div class="login">
+    <h3>Login</h3>
     <form @submit.prevent="handleSubmit">
       <input type="email" placeholder="ingrese email" v-model.trim="email" />
       <br />
@@ -36,3 +36,7 @@ const handleSubmit = async () => {
   // router.push("/");
 };
 </script>
+<style>
+
+
+</style>

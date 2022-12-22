@@ -9,13 +9,13 @@ import {
 
 import { auth } from "../firebaseConfig";
 import router from "../router";
+import { useDatabaseStore } from "./database";
 
 export const useUserStore = defineStore("userStore", {
   state: () => ({
     userData: null,
     loadingUser: false,
     loadingSession: false,
-    
   }),
 
   actions: {
@@ -52,6 +52,8 @@ export const useUserStore = defineStore("userStore", {
       }
     },
     async logoutUser() {
+      const databaseStore = useDatabaseStore();
+      databaseStore.$reset();
       try {
         await signOut(auth);
         this.userData = null;
@@ -62,16 +64,21 @@ export const useUserStore = defineStore("userStore", {
     },
     currentUser() {
       return new Promise((resolve, reject) => {
-        const unsuscribe = onAuthStateChanged(auth, user =>{
-          if (user){
-            this.userData = { email: user.email, uid: user.uid };
+        const unsuscribe = onAuthStateChanged(
+          auth,
+          (user) => {
+            if (user) {
+              this.userData = { email: user.email, uid: user.uid };
+              resolve(user);
+            } else {
+              this.userData = null;
+              const databaseStore = useDatabaseStore();
+              databaseStore.$reset();
+            }
             resolve(user);
-          }else{
-            this.userData = null;
-          }
-          resolve(user);
-
-        }, e=> reject(e)) 
+          },
+          (e) => reject(e)
+        );
         unsuscribe();
       });
     },
