@@ -19,6 +19,8 @@
         <br />
         {{ item.name }}
         <br />{{ item.short }}
+        <br />
+        <button @click="databaseStore.deleteUrl(item.id)">Eliminar</button>
       </li>
     </ul>
   </div>
@@ -32,13 +34,11 @@ const userStore = useUserStore();
 const databaseStore = useDatabaseStore();
 
 databaseStore.getUrls();
-const url = ref('');
+const url = ref("");
 
-const handleSubmit =  () => {
+const handleSubmit = () => {
   // validaciones de esa url...
   databaseStore.addUrl(url.value);
-  
 };
-
 </script>
 <style></style>

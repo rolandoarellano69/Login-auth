@@ -1,6 +1,9 @@
 import {
   addDoc,
   collection,
+  deleteDoc,
+  doc,
+  getDoc,
   getDocs,
   query,
   where,
@@ -28,7 +31,7 @@ export const useDatabaseStore = defineStore("database", {
         );
         const querySnapshot = await getDocs(q);
         querySnapshot.forEach((doc) => {
-          console.log(doc.id, doc.data());
+          // console.log(doc.id, doc.data());
           this.documents.push({
             id: doc.id,
             ...doc.data(),
@@ -48,8 +51,33 @@ export const useDatabaseStore = defineStore("database", {
           user: auth.currentUser.uid,
         };
         const docRef = await addDoc(collection(db, "urls"), objetoDoc);
-        console.log(docRef);
-      } catch (error) {}
+        // console.log(docRef);
+        this.documents.push({
+          ...objetoDoc,
+          id: docRef.id,
+        });
+      } catch (error) {
+        console.log(error);
+      } finally {
+      }
+    },
+    async deleteUrl(id) {
+      try {
+        const docRef = doc(db, "urls", id);
+        const docSpan = await getDoc(docRef);
+
+        if (!docSpan.exists()) {
+          throw new Error("No existe el Documento");
+        }
+        if (docSpan.data().user !== auth.currentUser.uid){
+          throw new Error("No tienes permiso de eliminar este documento");
+        }
+        await deleteDoc(docRef);
+        this.documents = this.documents.filter((item) => item.id !== id);
+      } catch (error) {
+        console.log(error);
+      } finally {
+      }
     },
   },
 });
