@@ -61,17 +61,34 @@ export const useDatabaseStore = defineStore("database", {
       } finally {
       }
     },
+
+    async leerUrl(id) {
+      try {
+        const docRef = doc(db, "urls", id);
+        const docSpan = await getDoc(docRef);
+        if (!docSpan.exists()) {
+          throw new Error("No existe el docuemento");
+        }
+        if (docSpan.data().user !== auth.currentUser.uid) {
+          throw new Error("No tienes permisos para eliminar este documento");
+        }
+
+        return docSpan.data().name;
+      } catch (error) {
+        console.log(error.message);
+      }
+    },
     async deleteUrl(id) {
       try {
         const docRef = doc(db, "urls", id);
         const docSpan = await getDoc(docRef);
-
         if (!docSpan.exists()) {
-          throw new Error("No existe el Documento");
+          throw new Error("No existe el docuemento");
         }
-        if (docSpan.data().user !== auth.currentUser.uid){
-          throw new Error("No tienes permiso de eliminar este documento");
+        if (docSpan.data().user !== auth.currentUser.uid) {
+          throw new Error("No tienes permisos para eliminar este documento");
         }
+
         await deleteDoc(docRef);
         this.documents = this.documents.filter((item) => item.id !== id);
       } catch (error) {
