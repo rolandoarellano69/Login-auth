@@ -6,11 +6,13 @@ import {
   getDoc,
   getDocs,
   query,
+  updateDoc,
   where,
 } from "firebase/firestore/lite";
 import { defineStore } from "pinia";
 import { auth, db } from "../firebaseConfig";
 import { nanoid } from "nanoid";
+import router from "../router";
 
 export const useDatabaseStore = defineStore("database", {
   state: () => ({
@@ -78,6 +80,28 @@ export const useDatabaseStore = defineStore("database", {
         console.log(error.message);
       }
     },
+    async updateUrl(id, name) {
+      try {
+        const docRef = doc(db, "urls", id);
+        const docSpan = await getDoc(docRef);
+        if (!docSpan.exists()) {
+          throw new Error("No existe el docuemento");
+        }
+        if (docSpan.data().user !== auth.currentUser.uid) {
+          throw new Error("No tienes permisos para eliminar este documento");
+        }
+        await updateDoc(docRef, {
+          name: name,
+        });
+        this.documents = this.documents.map((item) =>
+          item.id === id ? { ...item, name: name } : item
+        );
+        router.push("/");
+      } catch (error) {
+        console.log(error.message);
+      }
+    },
+
     async deleteUrl(id) {
       try {
         const docRef = doc(db, "urls", id);

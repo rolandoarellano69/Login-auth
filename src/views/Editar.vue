@@ -1,9 +1,11 @@
 <template>
   <h1>Editar</h1>
   <form @submit.prevent="handleSubmit">
-    <input type="text" placeholder="Descripcion" />
+    <input type="text" placeholder="Ingrese Url" v-model="url">
     <br />
+    <br/>
     <button type="submit">Editar</button>
+
   </form>
 </template>
 
@@ -16,10 +18,11 @@ const databaseStore = useDatabaseStore()
 const route = useRoute();
 // console.log(route.params.id)
 const handleSubmit = () => {
-  console.log(editar);
+  databaseStore.updateUrl(route.params.id, url.value);
+  
 };
 const url = ref('')
 onMounted(async() =>{
- url.value =await databaseStore(route.params.id)
+ url.value =await databaseStore.leerUrl(route.params.id)
 })
 </script>
